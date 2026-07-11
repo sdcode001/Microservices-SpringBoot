@@ -1,0 +1,38 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: "Account Service"
+  datasource:
+    url: "jdbc:h2:mem:dev_db_accounts"
+    driverClassName: "org.h2.Driver"
+    username: "sdcode001"
+    password: "test123"
+  h2:
+    console:
+      enable: true
+  jpa:
+    database-platform: "org.hibernate.dialect.H2Dialect"
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  config:
+    import:
+      - "application_qa.yaml"
+      - "application_prod.yaml"
+  profiles:
+    active:
+      - "qa"
+
+build:
+  version: "1.0.0"
+
+accounts:
+  message: "Welcome to EasyBank account related Dev REST Apis"
+  contactDetails:
+    name: "Souvik Dey - Software Engineer"
+    email: "sd@email.com"
+  onCallSupport:
+    - "(+91) 7453903945"
+    - "(+91) 8184624089"

@@ -1,0 +1,31 @@
+server:
+  port: "9000"
+spring:
+  datasource:
+    url: "jdbc:h2:mem:qa_db_cards"
+    driverClassName: "org.h2.Driver"
+    username: "sdcode001"
+    password: "test123"
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform: "org.hibernate.dialect.H2Dialect"
+    hibernate:
+      ddl-auto: "update"
+    show-sql: true
+  config:
+    activate:
+      on-profile: "qa"
+
+build:
+  version: "2.0.0"
+
+cards:
+  message: "Welcome to EasyBank cards related QA REST Apis"
+  contactDetails:
+    name: "Prateek Jain - QA Lead"
+    email: "pjain@email.com"
+  onCallSupport:
+    - "(+91) 7453903945"
+    - "(+91) 8184624089"

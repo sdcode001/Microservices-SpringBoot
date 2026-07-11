@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: "cards"
+  profiles:
+    active: "prod"
+  config:
+    import: "configserver:http://localhost:8071/"
+
+

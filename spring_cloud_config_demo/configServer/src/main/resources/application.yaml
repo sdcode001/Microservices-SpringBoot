@@ -1,0 +1,24 @@
+server:
+  port: 8071
+
+spring:
+  application:
+    name: configServer
+  profiles:
+    # active: native
+    active: git
+  cloud:
+    config:
+      server:
+        git:
+          uri: "https://github.com/sdcode001/spring-cloud-config-demo-repo.git"
+          default-label: main
+          timeout: 5
+          clone-on-start: true
+          force-pull: true
+        # native:
+          # search-location: "classpath:/config"
+          # search-location: "file:////Users//souvik-dey-mac//Documents//Learning//Microservices//spring_cloud_config_demo//config_dir"
+
+encrypt:
+  key: "66acec88fd4c2f251f254c7c6f199539"
