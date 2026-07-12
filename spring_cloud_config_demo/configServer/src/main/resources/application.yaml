@@ -19,6 +19,11 @@ spring:
         # native:
           # search-location: "classpath:/config"
           # search-location: "file:////Users//souvik-dey-mac//Documents//Learning//Microservices//spring_cloud_config_demo//config_dir"
+  rabbitmq:
+    host: "127.0.0.1"
+    port: "5672"
+    username: "guest"
+    password: "guest"
 
 encrypt:
   key: "66acec88fd4c2f251f254c7c6f199539"

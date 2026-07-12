@@ -2,8 +2,19 @@ spring:
   application:
     name: "cards"
   profiles:
-    active: "prod"
+    active: "qa"
   config:
     import: "configserver:http://localhost:8071/"
+  rabbitmq:
+    host: "127.0.0.1"
+    port: "5672"
+    username: "guest"
+    password: "guest"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 
 
