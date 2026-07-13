@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: configServer
+    name: configserver
   profiles:
     # active: native
     active: git
@@ -27,3 +27,18 @@ spring:
 
 encrypt:
   key: "66acec88fd4c2f251f254c7c6f199539"
+
+management:
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"

@@ -1,0 +1,109 @@
+services:
+  rabbitmq:
+    image: "rabbitmq:4-management"
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: "rabbitmq-diagnostics check_port_connectivity"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - easyBank
+  configserver:
+    image: "sdocker001/configserver:latest"
+    container_name: configserver_ms
+    ports:
+      - "8071:8071"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"
+  accounts:
+    image: "sdocker001/accounts:latest"
+    container_name: accounts_ms
+    ports:
+      - "8080:8080"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_PROFILES_ACTIVE: "qa"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_APPLICATION_NAME: "accounts"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"
+  loans:
+    image: "sdocker001/loans:latest"
+    container_name: loans_ms
+    ports:
+      - "8090:8090"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_PROFILES_ACTIVE: "qa"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_APPLICATION_NAME: "loans"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"
+  cards:
+    image: "sdocker001/cards:latest"
+    container_name: cards_ms
+    ports:
+      - "9000:9000"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_PROFILES_ACTIVE: "qa"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_APPLICATION_NAME: "cards"
+      SPRING_RABBITMQ_HOST: "rabbitmq"
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"
+networks:
+  easyBank:
+    driver: "bridge"

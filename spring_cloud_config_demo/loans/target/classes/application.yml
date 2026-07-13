@@ -2,14 +2,14 @@ spring:
   application:
     name: "loans"
   profiles:
-    active: "qa"
+    active: ${SPRING_PROFILES_ACTIVE:qa}
   config:
-    import: "configserver:http://localhost:8071/"
+    import: ${SPRING_CONFIG_IMPORT:configserver:http://localhost:8071/}
   rabbitmq:
-    host: "127.0.0.1"
-    port: "5672"
-    username: "guest"
-    password: "guest"
+    host: ${SPRING_RABBITMQ_HOST:127.0.0.1}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
 
 management:
   endpoints:
