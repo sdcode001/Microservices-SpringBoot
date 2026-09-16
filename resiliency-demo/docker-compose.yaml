@@ -1,0 +1,166 @@
+services:
+  redisserver:
+    image: "redis"
+    container_name: "redisserver"
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      timeout: 10s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+  configserver:
+    image: "sdocker001/configserver:latest"
+    container_name: configserver_ms
+    ports:
+      - "8071:8071"
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+  eurekaserver:
+    image: "sdocker001/eurekaserver:latest"
+    container_name: eurekaserver_ms
+    ports:
+      - "8070:8070"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+  accounts:
+    image: "sdocker001/accounts:latest"
+    container_name: accounts_ms
+    expose:
+      - "8080" # Internal service — accessible only through the Docker network/gateway.
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_PROFILES_ACTIVE: "default"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_APPLICATION_NAME: "accounts"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
+  loans:
+    image: "sdocker001/loans:latest"
+    container_name: loans_ms
+    expose:
+      - "8090" # Internal service — accessible only through the Docker network/gateway.
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_PROFILES_ACTIVE: "default"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_APPLICATION_NAME: "loans"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
+  cards:
+    image: "sdocker001/cards:latest"
+    container_name: cards_ms
+    expose:
+      - "9000" # Internal service — accessible only through the Docker network/gateway.
+    depends_on:
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_PROFILES_ACTIVE: "default"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_APPLICATION_NAME: "cards"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
+  gatewayserver:
+    image: "sdocker001/gatewayserver:latest"
+    container_name: gatewayserver_ms
+    ports:
+      - "8072:8072"
+    depends_on:
+      redisserver:
+        condition: service_healthy
+      accounts:
+        condition: service_healthy
+      cards:
+        condition: service_healthy
+      loans:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - easyBank
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_APPLICATION_NAME: "gatewayserver"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: "http://eurekaserver:8070/eureka/"
+      SPRING_DATA_REDIS_HOST: "redisserver"
+      SPRING_DATA_REDIS_PORT: "6379"
+networks:
+  easyBank:
+    driver: "bridge"

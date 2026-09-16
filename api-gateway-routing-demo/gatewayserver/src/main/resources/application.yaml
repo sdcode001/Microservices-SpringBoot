@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: "gatewayserver"
+  config:
+    import: ${SPRING_CONFIG_IMPORT:configserver:http://localhost:8071/}
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lowerCaseServiceId: true
+
+info:
+  app:
+    name: "gatewayserver"
+    description: "Easy Bank Gateway Server"
+    version: 1.0.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      access: unrestricted
+  info:
+    env:
+      enabled: true
+
+logging:
+  level:
+    com:
+      sd:
+        gatewayserver: INFO

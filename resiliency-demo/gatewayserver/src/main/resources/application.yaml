@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: "gatewayserver"
+  config:
+    import: ${SPRING_CONFIG_IMPORT:configserver:http://localhost:8071/}
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lowerCaseServiceId: true
+          httpclient:
+            connect-timeout: 1000
+            response-timeout: 2s
+  data:
+    redis:
+      connect-timeout: 2s
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      timeout: 1s
+
+info:
+  app:
+    name: "gatewayserver"
+    description: "Easy Bank Gateway Server"
+    version: 1.0.0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      access: unrestricted
+  info:
+    env:
+      enabled: true
+
+logging:
+  level:
+    com:
+      sd:
+        gatewayserver: INFO
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10 # The number of calls recorded in a sliding window to calculate the failure rate.
+      permittedNumberOfCallsInHalfOpenState: 2 # The number of trial calls allowed when the circuit breaker is in the HALF_OPEN state.
+      failureRateThreshold: 50 # The percentage threshold at which the circuit opens.
+      waitDurationInOpenState: 10000 # The time(in ms) the circuit stays OPEN before transitioning to HALF_OPEN.
