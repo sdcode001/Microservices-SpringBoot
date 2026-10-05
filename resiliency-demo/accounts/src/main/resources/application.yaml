@@ -71,3 +71,19 @@ resilience4j.retry:
         - java.lang.NullPointerException
       retryExceptions:
         - java.util.concurrent.TimeoutException
+
+resilience4j:
+  thread-pool-bulkhead:
+    instances:
+      inventoryReportThreadPool:
+        maxThreadPoolSize: 6 # Max number of threads in the pool
+        coreThreadPoolSize: 3 # Initial number of threads kept alive
+        queueCapacity: 20 # Capacity of the waiting queue before dropping requests
+        keepAliveDuration: 100ms # Time an idle thread waits before getting terminated
+
+      paymentReportThreadPool:
+        maxThreadPoolSize: 3
+        coreThreadPoolSize: 1
+        queueCapacity: 10
+        keepAliveDuration: 50ms
+
